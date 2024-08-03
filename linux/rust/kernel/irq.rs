@@ -431,6 +431,13 @@ impl<H: Handler> Registration<H> {
     }
 }
 
+impl<H: Handler> Drop for Registration<H> {
+    fn drop(&mut self) {
+        // pr_info!("Dropping irq handler\n");
+        drop(&self.0)
+    }
+}
+
 /// A threaded irq handler.
 pub trait ThreadedHandler {
     /// The context data associated with and made available to the handlers.

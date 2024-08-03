@@ -36,6 +36,7 @@ cd $rootfs
 find . | cpio -o --format=newc > $rootfs_img
 
 cd $work_dir
+sleep 30 
 
 qemu-system-x86_64 \
 -netdev "user,id=eth0" \

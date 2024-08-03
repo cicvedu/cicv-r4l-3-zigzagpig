@@ -163,4 +163,46 @@ config SAMPLE_RUST_SELFTESTS
 
 	  If unsure, say N.
 
+config SAMPLE_RUST_HELLOWORLD
+	tristate "Rust hello world"
+	help
+	  This option builds the rust hello world for Rust.
+
+	  If unsure, say N.
+
+# config SAMPLE_CONSTS
+# 	tristate "Rust hello world"
+# 	help
+# 	  This option builds the rust hello world for Rust.
+
+# 	  If unsure, say N.
+
+# config SAMPLE_R4L_E1000_DEMO
+# 	tristate "Rust hello world"
+# 	help
+# 	  This option builds the rust hello world for Rust.
+
+# 	  If unsure, say N.
+
+# config SAMPLE_RING_BUF
+# 	tristate "Rust hello world"
+# 	help
+# 	  This option builds the rust hello world for Rust.
+
+# 	  If unsure, say N.
+
+# config SAMPLE_E1000_OPS
+# 	tristate "Rust hello world"
+# 	help
+# 	  This option builds the rust hello world for Rust.
+
+# 	  If unsure, say N.
+
+# config SAMPLE_HW_DEFS
+# 	tristate "Rust hello world"
+# 	help
+# 	  This option builds the rust hello world for Rust.
+
+# 	  If unsure, say N.
+
 endif # SAMPLES_RUST

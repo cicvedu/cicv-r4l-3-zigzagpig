@@ -15,5 +15,11 @@ obj-$(CONFIG_SAMPLE_RUST_NETFILTER)		+= rust_netfilter.o
 obj-$(CONFIG_SAMPLE_RUST_ECHO_SERVER)		+= rust_echo_server.o
 obj-$(CONFIG_SAMPLE_RUST_FS)			+= rust_fs.o
 obj-$(CONFIG_SAMPLE_RUST_SELFTESTS)		+= rust_selftests.o
+obj-$(CONFIG_SAMPLE_RUST_HELLOWORLD)		+= rust_helloworld.o
+# obj-$(CONFIG_SAMPLE_CONSTS)		+= consts.o
+# obj-$(CONFIG_SAMPLE_R4L_E1000_DEMO)		+= r4l_e1000_demo.o
+# obj-$(CONFIG_SAMPLE_RING_BUF)		+= ring_buf.o
+# obj-$(CONFIG_SAMPLE_E1000_OPS)		+= e1000_ops.o
+# obj-$(CONFIG_SAMPLE_HW_DEFS)		+= hw_defs.o
 
 subdir-$(CONFIG_SAMPLE_RUST_HOSTPROGS)		+= hostprogs

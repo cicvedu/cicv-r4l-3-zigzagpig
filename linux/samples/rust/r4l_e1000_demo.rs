@@ -156,20 +156,20 @@ impl NetDevice {
         let mut tx_ring_lock = data.tx_ring.lock();
 
         // 处理Option中的值
-        if let Some(mut tx_ring) = tx_ring_lock.take() {
+        if let Some(mut tx_ring_buf) = tx_ring_lock.take() {
             // 释放TxRingBuf持有的资源
             // 例如：释放缓冲区、描述符等
             // 注意：这里假设TxRingBuf内部的资源需要显式释放
             // 比如：缓冲区需要被释放，描述符需要被清理等等
             // 因为Rust具有RAII机制，当tx_ring_buf离开作用域时，自动调用其析构函数
             // 在析构函数中可以进行相关的清理工作
-            for entry in tx_ring.buf.borrow_mut().iter_mut() {
+            for entry in rx_ring.buf.borrow_mut().iter_mut() {
                 if let Some((dma_map, skb)) = entry.take() {
                     drop(dma_map);
                     drop(skb);
                 }
             }
-            drop(tx_ring);
+            drop(rx_ring);
         }
 
         // 自动释放锁，因为tx_ring_lock离开了作用域
@@ -180,7 +180,7 @@ impl NetDevice {
         let mut rx_ring_lock = data.rx_ring.lock();
 
         // 处理Option中的值
-        if let Some(mut rx_ring) = rx_ring_lock.take() {
+        if let Some(mut rx_ring_buf) = rx_ring_lock.take() {
             // 释放RxRingBuf持有的资源
             // 例如：释放缓冲区、描述符等
             // 注意：这里假设RxRingBuf内部的资源需要显式释放
@@ -193,7 +193,7 @@ impl NetDevice {
                     drop(skb);
                 }
             }
-            drop(rx_ring);
+            drop(rx_ring_buf);
         }
 
         // 自动释放锁，因为rx_ring_lock离开了作用域
@@ -263,8 +263,8 @@ impl net::DeviceOperations for NetDevice {
             drop(Box::from_raw(irq_ptr));
         }
         _data.napi.disable();
-        Self::e1000_release_tx_ring(_data);
-        Self::e1000_release_rx_ring(_data);
+        _data.rx_ring;
+        _data.tx_ring;
         Ok(())
     }
 

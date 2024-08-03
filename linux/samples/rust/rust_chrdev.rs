@@ -18,13 +18,11 @@ module! {
     license: "GPL",
 }
 
-static GLOBALMEM_BUF: Mutex<[u8;GLOBALMEM_SIZE]> = unsafe {
-    Mutex::new([0u8;GLOBALMEM_SIZE])
-};
+static GLOBALMEM_BUF: Mutex<[u8; GLOBALMEM_SIZE]> = unsafe { Mutex::new([0u8; GLOBALMEM_SIZE]) };
 
 struct RustFile {
     #[allow(dead_code)]
-    inner: &'static Mutex<[u8;GLOBALMEM_SIZE]>,
+    inner: &'static Mutex<[u8; GLOBALMEM_SIZE]>,
 }
 
 #[vtable]
@@ -32,19 +30,65 @@ impl file::Operations for RustFile {
     type Data = Box<Self>;
 
     fn open(_shared: &(), _file: &file::File) -> Result<Box<Self>> {
-        Ok(
-            Box::try_new(RustFile {
-                inner: &GLOBALMEM_BUF
-            })?
-        )
+        Ok(Box::try_new(RustFile {
+            inner: &GLOBALMEM_BUF,
+        })?)
     }
 
-    fn write(_this: &Self,_file: &file::File,_reader: &mut impl kernel::io_buffer::IoBufferReader,_offset:u64,) -> Result<usize> {
-        Err(EPERM)
+    fn write(
+        this: &Self,
+        file: &file::File,
+        reader: &mut impl kernel::io_buffer::IoBufferReader,
+        offset: u64,
+    ) -> Result<usize> {
+        pr_info!("Rust character device sample (write)\n");
+        pr_err!("write debug message: Error message (level 3) without args\n");
+        pr_err!(
+            "\n\nall parameter\n file.pos: {}\n reader.len: {}\n offset: {}\n\n",
+            file.pos(),
+            reader.len(),
+            offset
+        );
+        let mut buf = this.inner.lock();
+        // let file_pos = file.pos() as usize;
+
+        let offset = offset as usize;
+
+        if offset > GLOBALMEM_SIZE {
+            return Ok(0);
+        }
+
+        let count = core::cmp::min(GLOBALMEM_SIZE - offset, reader.len());
+        reader.read_slice(&mut buf[offset..offset + count])?;
+        Ok(count)
     }
 
-    fn read(_this: &Self,_file: &file::File,_writer: &mut impl kernel::io_buffer::IoBufferWriter,_offset:u64,) -> Result<usize> {
-        Err(EPERM)
+    fn read(
+        this: &Self,
+        file: &file::File,
+        writer: &mut impl kernel::io_buffer::IoBufferWriter,
+        offset: u64,
+    ) -> Result<usize> {
+        pr_info!("Rust character device sample (read)\n");
+        pr_err!("read debug message: Error message (level 3) without args\n");
+        pr_err!(
+            "\n\nall parameter\n file.pos: {}\n writer.len: {}\n offset: {}\n\n",
+            file.pos(),
+            writer.len(),
+            offset
+        );
+        let buf = this.inner.lock();
+        // let file_pos = file.pos() as usize;
+        let offset = offset as usize;
+
+        if offset > GLOBALMEM_SIZE {
+            return Ok(0);
+        }
+
+        let count = core::cmp::min(writer.len(), GLOBALMEM_SIZE - offset);
+        writer.write_slice(&buf[offset..offset + count])?;
+        Ok(count)
+        // Err(EPERM)
     }
 }
 
@@ -55,6 +99,10 @@ struct RustChrdev {
 impl kernel::Module for RustChrdev {
     fn init(name: &'static CStr, module: &'static ThisModule) -> Result<Self> {
         pr_info!("Rust character device sample (init)\n");
+        pr_err!(
+            "init debug message: Error message (level 3) with args name: {}\n",
+            name
+        );
 
         let mut chrdev_reg = chrdev::Registration::new_pinned(name, 0, module)?;
 
